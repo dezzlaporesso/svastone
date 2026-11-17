@@ -34,14 +34,14 @@
     .display{font-family:'Barlow Condensed',Impact,sans-serif;text-transform:uppercase;line-height:.82;letter-spacing:-.045em}
     .outline{-webkit-text-stroke:1px rgba(233,230,223,.72);color:transparent}
     .redline{height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent)}
-    .navlink{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#aaa;transition:color .25s}
+    .navlink{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#aaa;transition:color .25s;cursor:pointer}
     .navlink:hover{color:#fff}
     .eyebrow{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:#9b9992}
     .hero{min-height:100svh;position:relative;display:flex;align-items:center;overflow:hidden}
     .hero-glow{position:absolute;width:58vw;height:58vw;max-width:850px;max-height:850px;border-radius:50%;background:radial-gradient(circle,rgba(125,26,26,.18),rgba(125,26,26,0) 68%);left:50%;top:48%;transform:translate(-50%,-50%)}
     #hero-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
     .hero-content{position:relative;z-index:2;pointer-events:none}
-    .hero-content a{pointer-events:auto}
+    .hero-content a, .hero-content button{pointer-events:auto}
     .hero-title{font-size:clamp(5rem,16vw,15rem)}
     .hero-bottom{position:absolute;bottom:32px;left:5vw;right:5vw;z-index:3}
     .scroll-cue{display:flex;align-items:center;gap:12px;color:#aaa;font-size:9px;letter-spacing:.22em;text-transform:uppercase}
@@ -54,7 +54,7 @@
     .detail-card{background:linear-gradient(145deg,#171717,#0d0d0d);border:1px solid #292929}
     .detail-number{font-family:'Barlow Condensed';font-size:4rem;color:#3c3a37;line-height:1}
     .spec-line{border-top:1px solid #343331;padding:18px 0;display:flex;justify-content:space-between;gap:20px;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
-    .cta{display:inline-flex;align-items:center;gap:28px;padding:16px 20px;border:1px solid #77716a;color:#f1eee8;font-size:10px;letter-spacing:.2em;text-transform:uppercase;transition:.3s}
+    .cta{display:inline-flex;align-items:center;gap:28px;padding:16px 20px;border:1px solid #77716a;color:#f1eee8;font-size:10px;letter-spacing:.2em;text-transform:uppercase;transition:.3s;cursor:pointer;background:transparent}
     .cta:hover{background:var(--fg);color:#111;border-color:var(--fg)}
     .cta .arrow{font-size:17px;transition:transform .3s}.cta:hover .arrow{transform:translateX(5px)}
     .marquee{white-space:nowrap;overflow:hidden;border-top:1px solid #252525;border-bottom:1px solid #252525}
@@ -63,12 +63,38 @@
     .marquee .red{color:var(--red)}
     @keyframes marquee{to{transform:translateX(-50%)}}
     .reveal{opacity:0;transform:translateY(35px)}
+    
+    /* Стили для модального окна заказа */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.85); backdrop-filter: blur(5px);
+      z-index: 100; display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s;
+    }
+    .modal-overlay.is-open { opacity: 1; visibility: visible; }
+    .modal-content {
+      background: #0d0d0d; border: 1px solid #292929; padding: 40px; width: 100%; max-width: 450px;
+      position: relative; transform: translateY(20px); transition: transform .3s;
+    }
+    .modal-overlay.is-open .modal-content { transform: translateY(0); }
+    .modal-close {
+      position: absolute; top: 15px; right: 15px; background: none; border: none; color: #888;
+      font-size: 24px; cursor: pointer; transition: color .2s;
+    }
+    .modal-close:hover { color: #fff; }
+    .input-group { margin-bottom: 20px; }
+    .input-group label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: #aaa; margin-bottom: 8px; }
+    .input-control {
+      width: 100%; background: #171717; border: 1px solid #333; padding: 12px 15px;
+      color: #fff; font-family: Manrope; font-size: 14px; outline: none; transition: border-color .2s;
+    }
+    .input-control:focus { border-color: var(--red); }
+    .input-control::placeholder { color: #555; }
+    
     @media(max-width:700px){
       .hero-title{font-size:clamp(5rem,22vw,9rem)}
       .hero-bottom{bottom:22px}
-      .mobile-stack{grid-template-columns:1fr}
-      .mobile-hide{display:none}
       .section-pad{padding:90px 6vw}
+      .modal-content { padding: 30px 20px; margin: 20px; }
     }
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
   </style>
@@ -78,9 +104,11 @@
   <header class="fixed top-0 left-0 right-0 z-40 px-[5vw] py-6 flex items-center justify-between mix-blend-difference">
     <a href="#top" class="font-display text-xl tracking-[.18em] font-bold">SVASTONE<span class="text-red-700">.</span></a>
     <nav class="hidden md:flex gap-9">
-      <a class="navlink" href="#story">Collection</a><a class="navlink" href="#details">Details</a><a class="navlink" href="#order">Order</a>
+      <a class="navlink" href="#story">Collection</a>
+      <a class="navlink" href="#details">Details</a>
+      <a class="navlink" onclick="openModal()">Order</a>
     </nav>
-    <a href="#order" class="navlink border border-white/40 px-4 py-2">Get yours ↗</a>
+    <button onclick="openModal()" class="navlink border border-white/40 px-4 py-2">Get yours ↗</button>
   </header>
 
   <main id="top">
@@ -92,7 +120,7 @@
         <h1 class="display hero-title font-black">FALL THE<br><span class="outline">HAMMER</span></h1>
         <div class="mt-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <p class="max-w-xs text-xs leading-6 text-neutral-400">A statement piece built around bold graphics, dark tones and uncompromising attitude.</p>
-          <a class="cta w-fit" href="#story">Explore the piece <span class="arrow">→</span></a>
+          <button onclick="openModal()" class="cta w-fit">Order now <span class="arrow">→</span></button>
         </div>
       </div>
       <div class="hero-bottom flex justify-between items-center">
@@ -138,7 +166,7 @@
           <p class="text-sm leading-7 text-neutral-400 max-w-sm mt-8 reveal">The back graphic combines oversized gothic lettering, a red handwritten line and a dark ornamental illustration.</p>
         </div>
         <div class="image-frame aspect-[4/5] order-1 md:order-2 reveal">
-          <img class="product-image" src="assets/hoodie-back.jpg" alt="Large SVASTONE back graphic">
+          <img class="product-image" src="hoodie-back.jpg" alt="Large SVASTONE back graphic">
           <div class="absolute top-5 right-5 eyebrow z-10">Graphic / Detail</div>
         </div>
       </div>
@@ -157,7 +185,6 @@
         <div class="spec-line"><span class="text-neutral-500">Collection</span><span>Fall the Hammer</span></div>
         <div class="spec-line"><span class="text-neutral-500">Color</span><span>Black</span></div>
         <div class="spec-line"><span class="text-neutral-500">Type</span><span>Zip-up hoodie</span></div>
-        <p class="text-[10px] leading-5 text-neutral-600 mt-5">Product details are based on the supplied reference image. Fabric composition, sizing and price have not been provided.</p>
       </div>
     </section>
 
@@ -167,8 +194,7 @@
         <div class="eyebrow mb-8 reveal">SVASTONE / FALL THE HAMMER</div>
         <h2 class="display text-[clamp(4.5rem,14vw,13rem)] reveal">OWN<br><span class="text-red-700">THE</span><br>MOMENT.</h2>
         <p class="text-xs text-neutral-500 mt-8 mb-9 reveal">The statement is yours to make.</p>
-        <a class="cta reveal" href="mailto:orders@example.com?subject=SVASTONE%20Fall%20the%20Hammer">Request details <span class="arrow">↗</span></a>
-        <p class="text-[9px] text-neutral-700 mt-5">Replace this contact link with your real order channel before publishing.</p>
+        <button onclick="openModal()" class="cta reveal">Request details <span class="arrow">↗</span></button>
       </div>
     </section>
   </main>
@@ -178,6 +204,113 @@
     <div class="eyebrow">FALL THE HAMMER / PRODUCT PRESENTATION</div>
     <a href="#top" class="navlink">Back to top ↑</a>
   </footer>
+
+  <!-- МОДАЛЬНОЕ ОКНО ЗАКАЗА -->
+  <div id="orderModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()" aria-label="Закрыть">×</button>
+      <div id="modalFormContent">
+        <h2 class="display text-4xl text-white mb-2">Оформить заказ</h2>
+        <p class="text-xs text-neutral-400 mb-8">Оставьте свои данные, и мы свяжемся с вами в Telegram.</p>
+        
+        <form id="orderForm">
+          <div class="input-group">
+            <label>Ваше Имя *</label>
+            <input type="text" id="orderName" class="input-control" placeholder="Иван" required>
+          </div>
+          <div class="input-group">
+            <label>Номер телефона *</label>
+            <input type="tel" id="orderPhone" class="input-control" placeholder="+7 (999) 000-00-00" required>
+          </div>
+          <div class="input-group">
+            <label>Ваш Telegram *</label>
+            <input type="text" id="orderTelegram" class="input-control" placeholder="@username" required>
+          </div>
+          <div class="input-group">
+            <label>Комментарий (размер, цвет)</label>
+            <textarea id="orderComment" class="input-control" rows="2" placeholder="Например: Размер L, черная"></textarea>
+          </div>
+          <button type="submit" id="orderSubmitBtn" class="cta w-full justify-center mt-4">Отправить заявку <span class="arrow">↗</span></button>
+        </form>
+      </div>
+      
+      <div id="modalSuccessContent" class="hidden text-center py-10">
+        <div class="text-4xl text-red-700 mb-4">✓</div>
+        <h2 class="display text-4xl text-white mb-3">Заявка принята</h2>
+        <p class="text-sm text-neutral-400">Мы свяжемся с вами в Telegram в ближайшее время.</p>
+        <button onclick="closeModal()" class="cta mt-8">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ТВОИ ДАННЫЕ
+    const BOT_TOKEN = '9230937565:AAFNVQVyu-WIQ_ncuUZxXc06NKg6ep3pKA4';
+    const CHAT_ID = '1341048553';
+
+    const modal = document.getElementById('orderModal');
+    const formContent = document.getElementById('modalFormContent');
+    const successContent = document.getElementById('modalSuccessContent');
+    const form = document.getElementById('orderForm');
+    const submitBtn = document.getElementById('orderSubmitBtn');
+
+    function openModal() {
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      formContent.classList.remove('hidden');
+      successContent.classList.add('hidden');
+      form.reset();
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Отправить заявку <span class="arrow">↗</span>';
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Отправка...';
+
+      const name = document.getElementById('orderName').value;
+      const phone = document.getElementById('orderPhone').value;
+      const telegram = document.getElementById('orderTelegram').value;
+      const comment = document.getElementById('orderComment').value;
+
+      const text = `🛒 НОВЫЙ ЗАКАЗ SVASTONE 🛒\n\n👤 Имя: ${name}\n📞 Телефон: ${phone}\n✈️ Telegram: ${telegram}\n💬 Комментарий: ${comment || 'Нет'}`;
+
+      try {
+        // ОТПРАВЛЯЕМ НАПРЯМУЮ В TELEGRAM
+        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+        });
+
+        if (response.ok) {
+          formContent.classList.add('hidden');
+          successContent.classList.remove('hidden');
+        } else {
+          alert('Ошибка сервера. Попробуйте позже.');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Отправить заявку <span class="arrow">↗</span>';
+        }
+      } catch (error) {
+        alert('Ошибка соединения. Проверьте интернет.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Отправить заявку <span class="arrow">↗</span>';
+      }
+    });
+  </script>
 
   <script type="module">
     import * as THREE from 'three';
@@ -198,8 +331,8 @@
 
     const group = new THREE.Group(); scene.add(group);
     const loader = new THREE.TextureLoader();
-    const frontTex = await loader.loadAsync('assets/hoodie-front.jpg');
-    const backTex = await loader.loadAsync('assets/hoodie-back.jpg');
+    const frontTex = await loader.loadAsync('hoodie-front.jpg');
+    const backTex = await loader.loadAsync('hoodie-back.jpg');
     [frontTex,backTex].forEach(t=>{t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=renderer.capabilities.getMaxAnisotropy()});
     const geo = new THREE.PlaneGeometry(3.0, 6.15);
     const front = new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:frontTex,roughness:1,side:THREE.DoubleSide}));
