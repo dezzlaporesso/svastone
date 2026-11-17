@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="SVASTONE — Fall the Hammer. A statement in black.">
+  <title>SVASTONE — FALL THE HAMMER</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { ink: '#090909', paper: '#e9e6df', muted: '#898781', ember: '#a92d2d' },
+        fontFamily: { display: ['Arial Narrow', 'Impact', 'sans-serif'], sans: ['Inter', 'Arial', 'sans-serif'] },
+        letterSpacing: { 'widest-xl': '.24em' }
+      }}
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
+  </script>
+  <style>
+    :root{--bg:#090909;--fg:#e9e6df;--muted:#898781;--red:#a92d2d}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--bg)}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:Manrope,Arial,sans-serif;overflow-x:hidden}
+    ::selection{background:var(--red);color:white}
+    .grain{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E")}
+    .display{font-family:'Barlow Condensed',Impact,sans-serif;text-transform:uppercase;line-height:.82;letter-spacing:-.045em}
+    .outline{-webkit-text-stroke:1px rgba(233,230,223,.72);color:transparent}
+    .redline{height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent)}
+    .navlink{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#aaa;transition:color .25s}
+    .navlink:hover{color:#fff}
+    .eyebrow{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:#9b9992}
+    .hero{min-height:100svh;position:relative;display:flex;align-items:center;overflow:hidden}
+    .hero-glow{position:absolute;width:58vw;height:58vw;max-width:850px;max-height:850px;border-radius:50%;background:radial-gradient(circle,rgba(125,26,26,.18),rgba(125,26,26,0) 68%);left:50%;top:48%;transform:translate(-50%,-50%)}
+    #hero-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .hero-content{position:relative;z-index:2;pointer-events:none}
+    .hero-content a{pointer-events:auto}
+    .hero-title{font-size:clamp(5rem,16vw,15rem)}
+    .hero-bottom{position:absolute;bottom:32px;left:5vw;right:5vw;z-index:3}
+    .scroll-cue{display:flex;align-items:center;gap:12px;color:#aaa;font-size:9px;letter-spacing:.22em;text-transform:uppercase}
+    .scroll-cue:before{content:"";width:38px;height:1px;background:var(--red)}
+    .section-pad{padding:clamp(90px,13vw,190px) 5vw}
+    .section-title{font-size:clamp(4rem,11vw,10rem)}
+    .product-image{width:100%;height:100%;object-fit:cover;filter:contrast(1.08) brightness(.86)}
+    .image-frame{position:relative;overflow:hidden;background:#171717}
+    .image-frame:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.08);pointer-events:none}
+    .detail-card{background:linear-gradient(145deg,#171717,#0d0d0d);border:1px solid #292929}
+    .detail-number{font-family:'Barlow Condensed';font-size:4rem;color:#3c3a37;line-height:1}
+    .spec-line{border-top:1px solid #343331;padding:18px 0;display:flex;justify-content:space-between;gap:20px;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+    .cta{display:inline-flex;align-items:center;gap:28px;padding:16px 20px;border:1px solid #77716a;color:#f1eee8;font-size:10px;letter-spacing:.2em;text-transform:uppercase;transition:.3s}
+    .cta:hover{background:var(--fg);color:#111;border-color:var(--fg)}
+    .cta .arrow{font-size:17px;transition:transform .3s}.cta:hover .arrow{transform:translateX(5px)}
+    .marquee{white-space:nowrap;overflow:hidden;border-top:1px solid #252525;border-bottom:1px solid #252525}
+    .marquee-track{display:inline-flex;gap:30px;padding:20px 0;animation:marquee 26s linear infinite}
+    .marquee span{font-family:'Barlow Condensed';font-size:clamp(2rem,5vw,4rem);text-transform:uppercase;color:#494743}
+    .marquee .red{color:var(--red)}
+    @keyframes marquee{to{transform:translateX(-50%)}}
+    .reveal{opacity:0;transform:translateY(35px)}
+    @media(max-width:700px){
+      .hero-title{font-size:clamp(5rem,22vw,9rem)}
+      .hero-bottom{bottom:22px}
+      .mobile-stack{grid-template-columns:1fr}
+      .mobile-hide{display:none}
+      .section-pad{padding:90px 6vw}
+    }
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <div class="grain"></div>
+  <header class="fixed top-0 left-0 right-0 z-40 px-[5vw] py-6 flex items-center justify-between mix-blend-difference">
+    <a href="#top" class="font-display text-xl tracking-[.18em] font-bold">SVASTONE<span class="text-red-700">.</span></a>
+    <nav class="hidden md:flex gap-9">
+      <a class="navlink" href="#story">Collection</a><a class="navlink" href="#details">Details</a><a class="navlink" href="#order">Order</a>
+    </nav>
+    <a href="#order" class="navlink border border-white/40 px-4 py-2">Get yours ↗</a>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-glow"></div>
+      <canvas id="hero-canvas" aria-label="3D presentation of the SVASTONE hoodie"></canvas>
+      <div class="hero-content w-full px-[5vw] pt-16">
+        <div class="eyebrow mb-5">SVASTONE / LIMITED STREETWEAR</div>
+        <h1 class="display hero-title font-black">FALL THE<br><span class="outline">HAMMER</span></h1>
+        <div class="mt-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <p class="max-w-xs text-xs leading-6 text-neutral-400">A statement piece built around bold graphics, dark tones and uncompromising attitude.</p>
+          <a class="cta w-fit" href="#story">Explore the piece <span class="arrow">→</span></a>
+        </div>
+      </div>
+      <div class="hero-bottom flex justify-between items-center">
+        <div class="scroll-cue">Scroll to discover</div>
+        <div class="eyebrow mobile-hide">01 — 04 / PRODUCT STORY</div>
+      </div>
+    </section>
+
+    <div class="redline"></div>
+    <section id="story" class="section-pad">
+      <div class="grid md:grid-cols-12 gap-10 items-end">
+        <div class="md:col-span-7">
+          <div class="eyebrow mb-7 reveal">01 / The silhouette</div>
+          <h2 class="display section-title reveal">NO<br>SOFT<br><span class="text-red-700">EDGES.</span></h2>
+        </div>
+        <div class="md:col-span-4 md:col-start-9 pb-3 reveal">
+          <p class="text-sm leading-7 text-neutral-400">Black on black. A sharp graphic identity. The back print carries the statement; the front keeps it restrained.</p>
+          <p class="eyebrow mt-8">SVASTONE — FALL THE HAMMER</p>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-3 mt-20">
+        <div class="image-frame aspect-[4/5]">
+          <img class="product-image" src="assets/hoodie-front.jpg" alt="SVASTONE hoodie, front view">
+          <div class="absolute bottom-5 left-5 z-10 eyebrow">Front / 01</div>
+        </div>
+        <div class="image-frame aspect-[4/5]">
+          <img class="product-image" src="assets/hoodie-back.jpg" alt="SVASTONE hoodie, back view">
+          <div class="absolute bottom-5 left-5 z-10 eyebrow">Back / 02</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="marquee"><div class="marquee-track">
+      <span>Fall the hammer</span><span class="red">✳</span><span>SVASTONE</span><span>Fall the hammer</span><span class="red">✳</span><span>SVASTONE</span>
+      <span>Fall the hammer</span><span class="red">✳</span><span>SVASTONE</span><span>Fall the hammer</span><span class="red">✳</span><span>SVASTONE</span>
+    </div></div>
+
+    <section class="section-pad">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="order-2 md:order-1">
+          <div class="eyebrow mb-6 reveal">02 / The artwork</div>
+          <h2 class="display text-[clamp(4rem,10vw,9rem)] reveal">MAKE<br>YOUR<br><span class="outline">MARK.</span></h2>
+          <p class="text-sm leading-7 text-neutral-400 max-w-sm mt-8 reveal">The back graphic combines oversized gothic lettering, a red handwritten line and a dark ornamental illustration.</p>
+        </div>
+        <div class="image-frame aspect-[4/5] order-1 md:order-2 reveal">
+          <img class="product-image" src="assets/hoodie-back.jpg" alt="Large SVASTONE back graphic">
+          <div class="absolute top-5 right-5 eyebrow z-10">Graphic / Detail</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="details" class="section-pad pt-10">
+      <div class="eyebrow mb-6 reveal">03 / Details</div>
+      <h2 class="display section-title mb-16 reveal">THE<br><span class="outline">FINISH.</span></h2>
+      <div class="grid md:grid-cols-3 gap-3">
+        <article class="detail-card p-7 min-h-64 reveal"><div class="detail-number">01</div><h3 class="mt-12 text-xs tracking-[.2em] uppercase">Front identity</h3><p class="mt-3 text-xs leading-6 text-neutral-500">A compact chest mark keeps the front balanced and understated.</p></article>
+        <article class="detail-card p-7 min-h-64 reveal"><div class="detail-number">02</div><h3 class="mt-12 text-xs tracking-[.2em] uppercase">Back statement</h3><p class="mt-3 text-xs leading-6 text-neutral-500">Large-scale artwork gives the hoodie its unmistakable character.</p></article>
+        <article class="detail-card p-7 min-h-64 reveal"><div class="detail-number">03</div><h3 class="mt-12 text-xs tracking-[.2em] uppercase">Dark palette</h3><p class="mt-3 text-xs leading-6 text-neutral-500">A black base with contrasting white and red graphic elements.</p></article>
+      </div>
+      <div class="max-w-2xl ml-auto mt-20">
+        <div class="spec-line"><span class="text-neutral-500">Brand</span><span>SVASTONE</span></div>
+        <div class="spec-line"><span class="text-neutral-500">Collection</span><span>Fall the Hammer</span></div>
+        <div class="spec-line"><span class="text-neutral-500">Color</span><span>Black</span></div>
+        <div class="spec-line"><span class="text-neutral-500">Type</span><span>Zip-up hoodie</span></div>
+        <p class="text-[10px] leading-5 text-neutral-600 mt-5">Product details are based on the supplied reference image. Fabric composition, sizing and price have not been provided.</p>
+      </div>
+    </section>
+
+    <section id="order" class="relative min-h-[75vh] flex items-center justify-center text-center px-6 overflow-hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(130,25,25,.17),transparent_58%)]"></div>
+      <div class="relative z-10 py-28">
+        <div class="eyebrow mb-8 reveal">SVASTONE / FALL THE HAMMER</div>
+        <h2 class="display text-[clamp(4.5rem,14vw,13rem)] reveal">OWN<br><span class="text-red-700">THE</span><br>MOMENT.</h2>
+        <p class="text-xs text-neutral-500 mt-8 mb-9 reveal">The statement is yours to make.</p>
+        <a class="cta reveal" href="mailto:orders@example.com?subject=SVASTONE%20Fall%20the%20Hammer">Request details <span class="arrow">↗</span></a>
+        <p class="text-[9px] text-neutral-700 mt-5">Replace this contact link with your real order channel before publishing.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="px-[5vw] py-8 border-t border-white/10 flex flex-col md:flex-row gap-4 justify-between items-center">
+    <div class="font-display tracking-[.18em] text-sm">SVASTONE<span class="text-red-700">.</span></div>
+    <div class="eyebrow">FALL THE HAMMER / PRODUCT PRESENTATION</div>
+    <a href="#top" class="navlink">Back to top ↑</a>
+  </footer>
+
+  <script type="module">
+    import * as THREE from 'three';
+    const canvas = document.querySelector('#hero-canvas');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(34, innerWidth/innerHeight, .1, 100);
+    camera.position.set(0,0,8.7);
+    const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.7));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+
+    scene.add(new THREE.AmbientLight(0xffffff, 2.0));
+    const key = new THREE.DirectionalLight(0xffffff, 3.0); key.position.set(3,5,6); scene.add(key);
+    const rim = new THREE.PointLight(0x9d2525, 18, 12); rim.position.set(-3,1,2); scene.add(rim);
+
+    const group = new THREE.Group(); scene.add(group);
+    const loader = new THREE.TextureLoader();
+    const frontTex = await loader.loadAsync('assets/hoodie-front.jpg');
+    const backTex = await loader.loadAsync('assets/hoodie-back.jpg');
+    [frontTex,backTex].forEach(t=>{t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=renderer.capabilities.getMaxAnisotropy()});
+    const geo = new THREE.PlaneGeometry(3.0, 6.15);
+    const front = new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:frontTex,roughness:1,side:THREE.DoubleSide}));
+    front.position.z=.025;
+    const back = new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:backTex,roughness:1,side:THREE.DoubleSide}));
+    back.rotation.y=Math.PI; back.position.z=-.025;
+    group.add(front,back);
+    group.rotation.y=-.24;
+    group.rotation.x=-.03;
+
+    let pointerX=0,pointerY=0,scrollP=0;
+    addEventListener('pointermove',e=>{pointerX=(e.clientX/innerWidth-.5)*.22;pointerY=(e.clientY/innerHeight-.5)*.14});
+    addEventListener('scroll',()=>{scrollP=Math.min(scrollY/innerHeight,1.4)},{passive:true});
+    const clock = new THREE.Clock();
+    function animate(){
+      requestAnimationFrame(animate);
+      const t=clock.getElapsedTime();
+      group.rotation.y += ((pointerX + Math.sin(t*.35)*.07 + scrollP*1.15)-group.rotation.y)*.035;
+      group.rotation.x += ((pointerY + Math.sin(t*.5)*.025)-group.rotation.x)*.035;
+      group.position.y = Math.sin(t*.7)*.045 - scrollP*.18;
+      const scale=1-scrollP*.10;group.scale.setScalar(scale);
+      renderer.render(scene,camera);
+    } animate();
+    function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}
+    addEventListener('resize',resize);
+  </script>
+  <script>
+    if(window.gsap && window.ScrollTrigger){
+      gsap.registerPlugin(ScrollTrigger);
+      gsap.utils.toArray('.reveal').forEach((el)=>gsap.to(el,{opacity:1,y:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}}));
+      gsap.from('.hero-content > *',{y:35,opacity:0,duration:1,stagger:.12,ease:'power3.out',delay:.2});
+      gsap.to('.hero-glow',{scale:1.15,opacity:.65,duration:4,yoyo:true,repeat:-1,ease:'sine.inOut'});
+    } else { document.querySelectorAll('.reveal').forEach(el=>{el.style.opacity=1;el.style.transform='none'}) }
+  </script>
+</body>
+</html>
